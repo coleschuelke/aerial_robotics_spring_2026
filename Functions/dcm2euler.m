@@ -42,8 +42,8 @@ end
 %% Student code
 
 phi = asin(R_BW(2, 3)); 
-psi = asin(-R_BW(2, 1) / cos(phi)); 
-theta = acos(R_BW(3, 3) / cos(phi));
+psi = atan2(-R_BW(2, 1), R_BW(2, 2));
+theta = atan2(-R_BW(1, 3), R_BW(3, 3));
 
 e = [phi, theta, psi].';
   
