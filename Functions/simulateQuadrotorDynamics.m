@@ -106,7 +106,7 @@ end
 tVec = S.tVec;
 x0 = S.state0;
 dcm0 = euler2dcm(x0.e);
-X0 = [x0.r; x0.v, dcm0(:); x0.omegaB];
+X0 = [x0.r; x0.v; dcm0(:); x0.omegaB];
 
 omega = S.omegaMat;
 dist = S.distMat;
@@ -115,13 +115,13 @@ Params.quadParams = S.quadParams;
 Params.constants = S.constants;
 
 % Initialize output state matrix
-x = zeros(length(t), length(X0));
-x(1, :) = x0.';
+x = zeros(length(tVec), length(X0));
+x(1, :) = X0;
 
 % Propagate
 for i=1:length(tVec)-1
     t_span = [tVec(i), tVec(i+1)];
-    [~, x_out] = ode45(@(t,x) quadOdeFunction(t, x, omega(i, :).', dist(i, :).', Params), t_span, X0);
+    [~, x_out] = ode45(@(t,x) quadOdeFunction(t, x, omega(i, :).', dist(i, :).', Params), t_span, x(i, :));
 
     x(i+1, :) = x_out(end, :);
 
@@ -129,20 +129,20 @@ end
 
 % Upsample
 tq = 0:1/S.oversampFact:tVec(end);
-x_interp = interp1(t, x, tq);
+x_interp = interp1(tVec, x, tq);
 e = zeros(length(tq), 3);
 
 % Convert back to euler angles
 for j=1:length(tq)
-    e(j, :) = dcm2euler([x_interp(j, 6:9), x_interp(j, 10:12), x_interp(j, 13:15)]);
+    e(j, :) = dcm2euler([x_interp(j, 7:9).', x_interp(j, 10:12).', x_interp(j, 13:15).']);
 end
 
 % Repack P
 P.tVec = tq;
-state.r = x_interp(:, 1:3);
-state.v = x_interp(:, 4:6);
-state.e = e;
-state.omegaB = x_interp(:, 16:18);
+state.rMat = x_interp(:, 1:3);
+state.vMat = x_interp(:, 4:6);
+state.eMat = e;
+state.omegaBMat = x_interp(:, 16:18);
 P.state = state;
   
 end % EOF simulateQuadrotorDynamics.m
