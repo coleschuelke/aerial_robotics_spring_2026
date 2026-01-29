@@ -70,8 +70,8 @@ e3 = [0 0 1].';
 
 % Unpack X
 rI = X(1:3);
-vI = X(13:15);
-RBI = [X(4:6), X(7:9), X(10:12)];
+vI = X(4:6);
+RBI = [X(7:9), X(10:12), X(13:15)];
 omegaB = X(16:18);
 
 % Intermediate Calculations
