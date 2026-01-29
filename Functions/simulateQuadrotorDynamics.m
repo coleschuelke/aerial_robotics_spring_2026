@@ -121,6 +121,7 @@ x(1, :) = X0;
 % Propagate
 for i=1:length(tVec)-1
     t_span = [tVec(i), tVec(i+1)];
+    % Should normalize C here with some regularity. 
     [~, x_out] = ode45(@(t,x) quadOdeFunction(t, x, omega(i, :).', dist(i, :).', Params), t_span, x(i, :));
 
     x(i+1, :) = x_out(end, :);
