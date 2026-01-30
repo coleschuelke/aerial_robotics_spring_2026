@@ -106,10 +106,9 @@ end
 tVec = S.tVec;
 x0 = S.state0;
 dcm0 = euler2dcm(x0.e);
-X0 = [x0.r; x0.v; dcm0(:); x0.omegaB];
-
 omega = S.omegaMat;
 dist = S.distMat;
+X0 = [x0.r; x0.v; dcm0(:); x0.omegaB];
 
 Params.quadParams = S.quadParams;
 Params.constants = S.constants;
@@ -125,7 +124,6 @@ for i=1:length(tVec)-1
     [~, x_out] = ode45(@(t,x) quadOdeFunction(t, x, omega(i, :).', dist(i, :).', Params), t_span, x(i, :));
 
     x(i+1, :) = x_out(end, :);
-
 end
 
 % Upsample
@@ -133,7 +131,7 @@ tq = 0:1/S.oversampFact:tVec(end);
 x_interp = interp1(tVec, x, tq);
 e = zeros(length(tq), 3);
 
-% Convert back to euler angles
+% Convert DCM back to euler angles
 for j=1:length(tq)
     e(j, :) = dcm2euler([x_interp(j, 7:9).', x_interp(j, 10:12).', x_interp(j, 13:15).']);
 end

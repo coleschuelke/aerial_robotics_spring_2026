@@ -77,9 +77,9 @@ omegaB = X(16:18);
 % Intermediate Calculations
 FiB = (qp.kF.*omegaVec.^2).'.*e3; % Thrust forces in the body frame
 FI = RBI.'*sum(FiB, 2); % Total thrust in the inertial frame
-NB_rotors = sum(((qp.kN.*omegaVec.^2).*qp.omegaRdir.').'.*e3, 2); 
-NB_forces = sum(cross(qp.rotor_loc, FiB, 1), 2);
-NB = NB_rotors + NB_forces;
+rotor_torque = sum(((qp.kN.*omegaVec.^2).*qp.omegaRdir.').'.*e3, 2);
+thrust_torque = sum(cross(qp.rotor_loc, FiB, 1), 2);
+NB = rotor_torque + thrust_torque; % Total torque in the body frame
 
 % Calculate Xdot
 rI_dot = vI;
