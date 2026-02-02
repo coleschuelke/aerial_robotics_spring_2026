@@ -41,9 +41,23 @@ end
 
 %% Student code
 
-phi = asin(R_BW(2, 3)); 
-psi = atan2(-R_BW(2, 1), R_BW(2, 2));
-theta = atan2(-R_BW(1, 3), R_BW(3, 3));
+% Singularity handling
+eps = 1e-6;
+if R_BW(2, 3) > (1-eps) % phi = 90 deg case
+    phi = pi/2;
+    theta = 0;
+    psi = atan2(R_BW(1, 2), R_BW(1, 1));
+    warning("Euler representation ill-conditioned at phi=+/-90deg");
+elseif R_BW(2, 3) < (-1+eps) % phi = -90 deg case
+    phi = -pi/2;
+    theta = 0;
+    psi = atan2(R_BW(1, 2), R_BW(1, 1));
+    warning("Euler representation ill-conditioned at phi=+/-90deg");
+else
+    phi = asin(R_BW(2, 3)); 
+    psi = atan2(-R_BW(2, 1), R_BW(2, 2));
+    theta = atan2(-R_BW(1, 3), R_BW(3, 3));
+end
 
 e = [phi, theta, psi].';
   
