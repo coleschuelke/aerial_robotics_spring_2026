@@ -6,7 +6,7 @@ INPUT_PARSING = false;
 addpath("Functions/");
 addpath("Params/");
 % Total simulation time, in seconds
-T = 2.5;
+T = 6.545;
 % Update interval, in seconds.  This value should be small relative to the
 % shortest time constant of your system.
 delt = 0.005;
@@ -79,13 +79,13 @@ S2.bounds=1*[-1 1 -1 1 -1 1];
 visualizeQuad(S2);
 
 figure(1);clf;
-plot(P.tVec,P.state.rMat(:,3)); grid on;
+plot(P.tVec,P.state.rMat(:,3), "LineWidth", 5); grid on;
 xlabel('Time (sec)');
 ylabel('Vertical (m)');
 title('Vertical position of CM'); 
 
 figure(2);clf;
-plot(P.state.rMat(:,1), P.state.rMat(:,2)); 
+plot(P.state.rMat(:,1), P.state.rMat(:,2), 'LineWidth', 5); 
 axis equal; grid on;
 xlabel('X (m)');
 ylabel('Y (m)');
