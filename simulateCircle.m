@@ -6,7 +6,7 @@ INPUT_PARSING = false;
 addpath("Functions/");
 addpath("Params/");
 % Total simulation time, in seconds
-T = 5;
+T = 2.5;
 % Update interval, in seconds.  This value should be small relative to the
 % shortest time constant of your system.
 delt = 0.005;
@@ -63,7 +63,7 @@ S.state0.omegaB = omegaB; % This should be directly transferable
 % Matrix of disturbance forces acting on the body, in Newtons, expressed in I
 S.distMat = zeros(N,3);
 % Rotor speeds at each time, in rad/s
-S.omegaMat = [omegai, omegai, omegao, omegao].*ones(N,4); % No idea if this is correct
+S.omegaMat = [omegai, omegai, omegao, omegao].*ones(N,4);
 % Oversampling factor
 S.oversampFact = 10;
 
