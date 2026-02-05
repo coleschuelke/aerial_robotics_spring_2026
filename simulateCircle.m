@@ -37,7 +37,7 @@ Fc = qp.m*ac; % N
 Fl = qp.m*const.g; % N
 theta = atan2(ac, const.g); % rad
 phi = 0; % rad
-psi0 = 0; % rad
+psi0 = pi/2; % rad
 psi_dot = 2*pi/T; % rad/s
 Ft = Fc / sin(theta); % N
 
@@ -54,7 +54,7 @@ omegao = ((Fo*0.5) / (qp.kF(1)))^0.5;
 % Initial position in m
 S.state0.r = [0 -r 0.5]';
 % Initial attitude expressed as Euler angles, in radians
-S.state0.e = [0 theta pi/2]'; % Make sure this is expected orientation
+S.state0.e = [0 theta psi0]'; % Make sure this is expected orientation
 % Initial velocity of body with respect to I, expressed in I, in m/s
 S.state0.v = [vt 0 0]'; % Need to make sure this is in the proper direction according to omegaB
 % Initial angular rate of body with respect to I, expressed in B, in rad/s
