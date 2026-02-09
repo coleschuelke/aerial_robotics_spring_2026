@@ -46,7 +46,7 @@ function [NBk] = attitudeController(R,S,P)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -66,7 +66,42 @@ if INPUT_PARSING
 end
 
 %% Student code
+% Unpack R
+zIstark = R.zIstark;
+xIstark = R.xIstark;
 
-%                       Insert your code here 
+% Unpack S
+rIk = S.statek.rI;
+RBIk = S.statek.RBI;
+vIk = S.statek.vI;
+omegaBk = S.statek.omegaB;
+
+% Unpack P
+qp = P.quadParams;
+c = P.consants;
+
+% Definitions for convenience
+e1 = [1 0 0].';
+e2 = [0 1 0].';
+e3 = [0 0 1].';
+
+% Controller gains
+K = diag([1 1 1]); % [kx, ky, kz]
+Kd = diag([1 1 1]); % [kdx, kdy, kdz]
+
+% RBIstark
+zxxk = cross(zIstark, xIstark);
+b = zxxk / norm(zxxk);
+a = cross(b, zIstark);
+RBIstark = [a, b, zIstark].';
+
+% Error DCM
+REk = RBIstark*RBIk.';
+
+% Extract the eigenaxis of rotation
+eEk = [REk(2, 3) - REk(3, 2); REk(3, 1) - REk(1, 3); REk(1, 2) - REk(2, 1)];
+
+% Control Law
+NBk = K*eEk - Kd*omegaBk + crossProductEquivalent(omegaBk)*qp.Jq*omegaBk;
   
 end % EOF attitudeController.m
