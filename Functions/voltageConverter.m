@@ -28,7 +28,7 @@ function [eak] = voltageConverter(Fk,NBk,P)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -45,6 +45,40 @@ end
 
 %% Student code
 
-%                       Insert your code here 
+% Unpack P
+qp = P.quadParams;
+c = P.contants;
+
+% Initial resource allocation tuning values
+alpha = 1;
+beta = 0.9;
+
+
+% Construct G matrix
+G = zeros(4);
+
+% Max thrust from a single motor
+Fimax = qp.kF*(qp.cm.*qp.eamax).^2;
+FVec = Fimax + 1; % Ensure the loop runs the first time
+
+% Save thrust for attitude control
+Fapp = min([Fk, sum(Fimax)*beta]);
+
+while any(FVec > Fimax)
+
+    % Desired actuation
+    star = [Fapp; alpha*NBk];
+    
+    % Solve for motor thrust
+    FVec = G\star;
+
+    alpha = 0.9*alpha;
+end
+
+% Zero out any negative values
+FVec = max(FVec, 0);
+
+% Convert motor thrust to applied voltage
+eak = ((FVec./qp.kF).^0.5)./qp.cm;
 
 end % EOF voltageConverter.m

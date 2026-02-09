@@ -22,7 +22,7 @@ S.tVec = [0:N-1]'*delt;
 % Matrix of disturbance forces acting on the body, in Newtons, expressed in I
 S.distMat = zeros(N-1,3);
 % Rotor speeds at each time, in rad/s
-S.eaMat = 650/quadParams.cm(1)*ones(N-1,4);
+S.eaMat = 586/quadParams.cm(1)*ones(N-1,4);
 % Initial position in m
 S.state0.r = [0 0 0]';
 % Initial attitude expressed as Euler angles, in radians
