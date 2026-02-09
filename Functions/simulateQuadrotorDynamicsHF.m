@@ -113,7 +113,7 @@ dcm0 = euler2dcm(x0.e);
 eaMat = S.eaMat;
 dist = S.distMat;
 
-% Create the passable x0 vector and add rotor speed initial conditions
+% Create vectorized x0 and add rotor speed initial conditions
 x0_aug = [x0.r; x0.v; dcm0(:); x0.omegaB; zeros(4, 1)];
 
 % Repackage the params

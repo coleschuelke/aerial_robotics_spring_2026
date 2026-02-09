@@ -126,6 +126,38 @@ end
 
 %% Student code
 
-%                       Insert your code here 
+% Unpack R
+
+% Unpack S
+tVec = R.tVec;
+dtIn = tVec(2) - tVec(1);
+dtOut = dtIn/S.oversampFact;
+N = length(tVec);
+x0 = S.state0;
+dcm0 = euler2dcm(x0.e);
+eaMat = S.eaMat;
+dist = S.distMat;
+
+% Unpack P
+qp = P.quadParams;
+c = P.constants;
+s = P.sensorParams;
+
+% Create vectorized initial conditions with rotor speed IC's 
+
+% Initialize the outputs
+
+% Prep the first initial condition
+
+% Main loop
+for k=1:N-1
+    % Calculate desired position and attitude
+
+    % Call the controllers
+
+    % Convert the force and torque to motor voltages
+
+    % Simulate next step with voltage inputs
+
   
 end % EOF simulateQuadrotorControl.m
