@@ -1,5 +1,6 @@
-function [P] = simulateQuadrotorDynamics(S)
-% simulateQuadrotorDynamics : Simulates the dynamics of a quadrotor aircraft.
+function [P] = simulateQuadrotorDynamicsHF(S)
+% simulateQuadrotorDynamicsHF : Simulates the dynamics of a quadrotor
+%                               aircraft (high-fidelity version).
 %
 %
 % INPUTS
@@ -13,11 +14,11 @@ function [P] = simulateQuadrotorDynamics(S)
 %                 output sample interval will be dtOut =
 %                 dtIn/oversampFact. Must satisfy oversampFact >= 1.   
 %
-%      omegaMat = (N-1)x4 matrix of rotor speed inputs.  omegaMat(k,j) >= 0 is
-%                 the constant (zero-order-hold) rotor speed setpoint for the
-%                 jth rotor over the interval from tVec(k) to tVec(k+1).
+%         eaMat = (N-1)x4 matrix of motor voltage inputs.  eaMat(k,j) is the
+%                 constant (zero-order-hold) voltage for the jth motor over
+%                 the interval from tVec(k) to tVec(k+1).
 %
-%        state0 = 12x1 state of the quad at tVec(1) = 0, expressed as a structure
+%        state0 = State of the quad at tVec(1) = 0, expressed as a structure
 %                 with the following elements:
 %                   
 %                   r = 3x1 position in the world frame, in meters
@@ -72,12 +73,11 @@ function [P] = simulateQuadrotorDynamics(S)
 %                       3x1 angular rate vector expressed in the body frame in
 %                       radians, that applies at tVec(k).
 %
-%
 %+------------------------------------------------------------------------------+
 % References:
 %
 %
-% Author: Cole Schuelke
+% Author:  
 %+==============================================================================+  
 
 %% Validate inputs
@@ -87,7 +87,7 @@ if INPUT_PARSING
   ip = inputParser; ip.StructExpand = true; ip.KeepUnmatched = true;
   ip.addParameter('tVec',[],@(x)issize(x,NaN,1));
   ip.addParameter('oversampFact',[],@(x)issize(x,1,1));
-  ip.addParameter('omegaMat',[],@(x)issize(x,NaN,4));
+  ip.addParameter('eaMat',[],@(x)issize(x,NaN,4));
   ip.addParameter('distMat',[],@(x)issize(x,NaN,3));
   ip.addParameter('quadParams',[],@(x)isstruct(x));
   ip.addParameter('constants',[],@(x)isstruct(x));
@@ -102,31 +102,37 @@ if INPUT_PARSING
 end
 
 %% Student code
-% Unpack S 
+
+% Unpack S
 tVec = S.tVec;
 dtIn = tVec(2) - tVec(1);
+dtOut = dtIn/S.oversampFact;
 N = length(tVec);
 x0 = S.state0;
 dcm0 = euler2dcm(x0.e);
-omega = S.omegaMat;
+eaMat = S.eaMat;
 dist = S.distMat;
-X0 = [x0.r; x0.v; dcm0(:); x0.omegaB];
-dtOut = dtIn/S.oversampFact;
 
+% Create the passable x0 vector and add rotor speed initial conditions
+x0_aug = [x0.r; x0.v; dcm0(:); x0.omegaB; zeros(4, 1)];
+
+% Repackage the params
 Params.quadParams = S.quadParams;
 Params.constants = S.constants;
 
-% Initialize output state matrix
+% Initialize outputs 
 xOut = [];
 tVecOut = [];
 
-xi = X0;
+% Prep first initial condition
+xi = x0_aug;
 
 % Propagate
 for i=1:N-1
     t_span = [tVec(i):dtOut:tVec(i+1)];
-    % Should normalize C here with some regularity. 
-    [tVeci, xOuti] = ode45(@(t,x) quadOdeFunction(t, x, omega(i, :).', dist(i, :).', Params), t_span, xi);
+    % Should normalize C here with some regularity.
+
+    [tVeci, xOuti] = ode45(@(t,x) quadOdeFunctionHF(t, x, eaMat(i, :).', dist(i, :).', Params), t_span, xi);
     
     % Save solutions (includes initial condition, excludes final state (initial condition for next step)) 
     tVecOut = [tVecOut; tVeci(1:end-1)];
@@ -145,12 +151,18 @@ for j=1:length(tVecOut)
     e(j, :) = dcm2euler([xOut(j, 7:9).', xOut(j, 10:12).', xOut(j, 13:15).']);
 end
 
+% Save the last round of solutions, including the very final state
+tVecOut = [tVecOut; tVeci(1:end)];
+xOut = [xOut; xOuti(1:end, :)];
+
 % Repack P
 P.tVec = tVecOut;
 state.rMat = xOut(:, 1:3);
 state.vMat = xOut(:, 4:6);
 state.eMat = e;
 state.omegaBMat = xOut(:, 16:18);
+
+% Ship it!
 P.state = state;
-  
-end % EOF simulateQuadrotorDynamics.m
+
+end % EOF simulateQuadrotorDynamicsHF.m

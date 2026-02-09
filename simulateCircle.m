@@ -12,7 +12,7 @@ T = 6.545;
 delt = 0.005;
 % Time vector, in seconds 
 N = floor(T/delt);
-S.tVec = [0:N]'*delt;
+S.tVec = [0:N-1]'*delt;
 
 % Definitions for convenience
 e1 = [1, 0, 0].';
@@ -61,9 +61,9 @@ S.state0.v = [vt 0 0]'; % Need to make sure this is in the proper direction acco
 S.state0.omegaB = omegaB; % This should be directly transferable 
 
 % Matrix of disturbance forces acting on the body, in Newtons, expressed in I
-S.distMat = zeros(N,3);
+S.distMat = zeros(N-1,3);
 % Rotor speeds at each time, in rad/s
-S.omegaMat = [omegai, omegai, omegao, omegao].*ones(N,4);
+S.omegaMat = [omegai, omegai, omegao, omegao].*ones(N-1,4);
 % Oversampling factor
 S.oversampFact = 10;
 
