@@ -135,7 +135,6 @@ dtOut = dtIn/S.oversampFact;
 N = length(tVec);
 x0 = S.state0;
 dcm0 = euler2dcm(x0.e);
-eaMat = S.eaMat;
 dist = S.distMat;
 
 % Unpack P
@@ -144,18 +143,46 @@ c = P.constants;
 s = P.sensorParams;
 
 % Create vectorized initial conditions with rotor speed IC's 
+x0_aug = [x0.r; x0.v; dcm0(:); x0.omegaB; zeros(4, 1)];
 
 % Initialize the outputs
+xOut = [];
+tVecOut = [];
 
 % Prep the first initial condition
+xk = x0_aug;
 
 % Main loop
 for k=1:N-1
-    % Calculate desired position and attitude
+    % Create the step
+    t_span = [tVec(k):dtOut:tVec(k+1)];
 
-    % Call the controllers
+    % Retrieve desired position and attitude
+    rIstark = zeros(3, 1);
+    xIstark = zeros(3, 1);
+
+    Sk.statek.rI = xk(1:2);
+    Sk.statek.RBI = [xk(7:9), xk(10:12), xk(13:15)];
+    Sk.statek.vI = xk(3:4);
+    Sk.statek.omegaB = xk(16:18);
+
+    % Create Rt for the trajectory
+    Rt.rIstark = R.rIstark(k, :).';
+    Rt.vIstark = R.vIstark(k, :).';
+    Rt.aIstark = R.aIstark(k, :).';
+
+    % Call the trajectory controller
+    [Fk, zIstark] = trajectoryController(Rt, Sk, P);
+
+    % Calculate Ra for the attitude
+    Ra.zIstark = zIstark;
+    Ra.xIstark = xIstark;
+
+    % Call the attitude controller
+    NBk = attitudeController(Ra, Sk, P);
 
     % Convert the force and torque to motor voltages
+    eak = voltageConverter(Fk, NBk, P);
 
     % Simulate next step with voltage inputs
 

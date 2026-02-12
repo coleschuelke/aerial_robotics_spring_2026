@@ -55,7 +55,8 @@ beta = 0.9;
 
 
 % Construct G matrix
-G = zeros(4);
+kT = qp.kN ./ qp.kF;
+G = [ones(1, 4); qp.rotor_loc(2, :); -1 * qp.rotor_loc(1, :); kT*qp.omega_dir];
 
 % Max thrust from a single motor
 Fimax = qp.kF*(qp.cm.*qp.eamax).^2;
