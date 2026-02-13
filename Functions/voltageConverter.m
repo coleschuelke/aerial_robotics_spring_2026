@@ -47,7 +47,7 @@ end
 
 % Unpack P
 qp = P.quadParams;
-c = P.contants;
+c = P.constants;
 
 % Initial resource allocation tuning values
 alpha = 1;
@@ -56,10 +56,10 @@ beta = 0.9;
 
 % Construct G matrix
 kT = qp.kN ./ qp.kF;
-G = [ones(1, 4); qp.rotor_loc(2, :); -1 * qp.rotor_loc(1, :); kT*qp.omega_dir];
+G = [ones(1, 4); qp.rotor_loc(2, :); -1 * qp.rotor_loc(1, :); kT.'.*qp.omegaRdir];
 
 % Max thrust from a single motor
-Fimax = qp.kF*(qp.cm.*qp.eamax).^2;
+Fimax = qp.kF.*(qp.cm.*qp.eamax).^2;
 FVec = Fimax + 1; % Ensure the loop runs the first time
 
 % Save thrust for attitude control

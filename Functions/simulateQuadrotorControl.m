@@ -157,26 +157,22 @@ for k=1:N-1
     % Create the step
     t_span = [tVec(k):dtOut:tVec(k+1)];
 
-    % Retrieve desired position and attitude
-    rIstark = zeros(3, 1);
-    xIstark = zeros(3, 1);
-
-    Sk.statek.rI = xk(1:2);
+    Sk.statek.rI = xk(1:3);
     Sk.statek.RBI = [xk(7:9), xk(10:12), xk(13:15)];
-    Sk.statek.vI = xk(3:4);
+    Sk.statek.vI = xk(4:6);
     Sk.statek.omegaB = xk(16:18);
 
     % Create Rt for the trajectory
-    Rt.rIstark = R.rIstark(k, :).';
-    Rt.vIstark = R.vIstark(k, :).';
-    Rt.aIstark = R.aIstark(k, :).';
+    Rt.rIstark = R.rIstar(k, :).';
+    Rt.vIstark = R.vIstar(k, :).';
+    Rt.aIstark = R.aIstar(k, :).';
 
     % Call the trajectory controller
     [Fk, zIstark] = trajectoryController(Rt, Sk, P);
 
     % Calculate Ra for the attitude
     Ra.zIstark = zIstark;
-    Ra.xIstark = xIstark;
+    Ra.xIstark = R.xIstar(k, :).';
 
     % Call the attitude controller
     NBk = attitudeController(Ra, Sk, P);
@@ -185,6 +181,36 @@ for k=1:N-1
     eak = voltageConverter(Fk, NBk, P);
 
     % Simulate next step with voltage inputs
+    [tOutk, xOutk] = ode45(@(t, x) quadOdeFunctionHF(t, x, eak, dist(k, :).', P), t_span, xk);
 
-  
+    % Save solutions (includes initial condition, excludes final state (initial condition for next step)) 
+    tVecOut = [tVecOut; tOutk(1:end-1)];
+    xOut = [xOut; xOutk(1:end-1, :)];
+
+    xk = xOutk(end, :).';
+end
+
+% Save the last round of solutions, including the very final state
+tVecOut = [tVecOut; tOutk(1:end)];
+xOut = [xOut; xOutk(1:end, :)];
+
+% Convert DCM back to euler angles
+e = [];
+for j=1:length(tVecOut)
+    e(j, :) = dcm2euler([xOut(j, 7:9).', xOut(j, 10:12).', xOut(j, 13:15).']);
+end
+
+% Pack Q output
+Q.tVec = tVecOut;
+state.rMat = xOut(:, 1:3);
+state.vMat = xOut(:, 4:6);
+state.eMat = e;
+state.omegaBMat = xOut(:, 16:18);
+
+% Ship it!
+Q.state = state;
+
 end % EOF simulateQuadrotorControl.m
+
+
+

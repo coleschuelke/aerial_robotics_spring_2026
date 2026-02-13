@@ -151,10 +151,6 @@ for j=1:length(tVecOut)
     e(j, :) = dcm2euler([xOut(j, 7:9).', xOut(j, 10:12).', xOut(j, 13:15).']);
 end
 
-% Save the last round of solutions, including the very final state
-tVecOut = [tVecOut; tVeci(1:end)];
-xOut = [xOut; xOuti(1:end, :)];
-
 % Repack P
 P.tVec = tVecOut;
 state.rMat = xOut(:, 1:3);

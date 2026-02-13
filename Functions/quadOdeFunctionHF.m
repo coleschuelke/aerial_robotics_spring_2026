@@ -44,7 +44,7 @@ function [Xdot] = quadOdeFunctionHF(t,X,eaVec,distVec,P)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Cole Schuelke
 %+==============================================================================+
 
 %% Validate inputs

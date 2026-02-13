@@ -3,7 +3,7 @@ close all;
 clc;
 
 
-run("Params\quadParamsScript.m")
+run("../Params/quadParamsScript.m")
 
 % Transfer Function 
 numerator = [quadParams.cm(1)];

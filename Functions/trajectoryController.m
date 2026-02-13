@@ -86,7 +86,7 @@ omegaBk = S.statek.omegaB;
 
 % Unpack P
 qp = P.quadParams;
-c = P.consants;
+c = P.constants;
 
 % Definitions for convenience
 e1 = [1 0 0].';
@@ -94,15 +94,15 @@ e2 = [0 1 0].';
 e3 = [0 0 1].';
 
 % Controller gains
-k = 0;
-kd = 0;
+k = 3;
+kd = 0.5;
 
 % Position error
 erk = rIstark - rIk;
 erk_dot = vIstark - vIk;
 
 % Desired thrust 
-FIstark = k*erk + kd*erk_dot + qp.m*e3 * qp.m*aIstark;
+FIstark = k*erk + kd*erk_dot + qp.m*c.g*e3 + qp.m*aIstark;
 Fk = FIstark.'*RBIk.'*e3;
 
 % Desired z-axis 
