@@ -94,8 +94,8 @@ e2 = [0 1 0].';
 e3 = [0 0 1].';
 
 % Controller gains
-k = 3;
-kd = 0.5;
+k = 4.4;
+kd = 1.75;
 
 % Position error
 erk = rIstark - rIk;

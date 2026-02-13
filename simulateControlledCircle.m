@@ -13,7 +13,7 @@ Pin.quadParams = quadParams;
 Pin.constants = constants;
 Pin.sensorParams = 0;
 % Total simulation time, in seconds
-Tsim = 10;
+Tsim = 15;
 % Update interval, in seconds.  This value should be small relative to the
 % shortest time constant of your system.
 delt = 0.005;
@@ -21,7 +21,7 @@ delt = 0.005;
 N = floor(Tsim/delt);
 
 % Math for trajectory
-T = Tsim;
+T = 10;
 r = 4;
 t = 0:delt:T;
 % xI trajectory 
@@ -41,12 +41,19 @@ xi = -sin((2*pi/T)*t);
 xj = cos((2*pi/T)*t);
 xk = zeros(1, length(t));
 
+
+% Padding to let altitude settle
+xSettle = zeros(N-length(t), 1);
+ySettle = -4*ones(N-length(t), 1);
+zSettle = zeros(N-length(t), 1);
+xjSettle = ones(N-length(t), 1);
+
 % Pack R
-R.tVec = [0:N-1]'*delt;
-R.rIstar = [xI.', yI.', zI.'];
-R.vIstar = [xI_dot.', yI_dot.', zI_dot.'];
-R.aIstar = [xI_ddot.', yI_ddot.', zI_ddot.'];
-R.xIstar = [xi.', xj.', xk.'];
+R.tVec = [0:N]'*delt;
+R.rIstar = [xSettle, ySettle, zSettle; xI.', yI.', zI.'];
+R.vIstar = [zeros(N-length(t), 3); xI_dot.', yI_dot.', zI_dot.'];
+R.aIstar = [zeros(N-length(t), 3); xI_ddot.', yI_ddot.', zI_ddot.'];
+R.xIstar = [xSettle, xjSettle, zSettle; xi.', xj.', xk.'];
 % Matrix of disturbance forces acting on the body, in Newtons, expressed in I
 % S.distMat = 0.5*randn((N-1), 3); % With disturbances
 S.distMat = zeros(N, 3); % No disturbances
