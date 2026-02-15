@@ -68,7 +68,7 @@ end
 %% Student code
 % Unpack R
 zIstark = R.zIstark;
-xIstark = R.xIstark;
+xIstark = R.xIstark/norm(R.xIstark); % Normalize the vector
 
 % Unpack S
 rIk = S.statek.rI;
@@ -86,8 +86,8 @@ e2 = [0 1 0].';
 e3 = [0 0 1].';
 
 % Controller gains
-K = diag([0.75, 0.75, 0.15]); % [kx, ky, kz]
-Kd = diag([0.2, 0.2, 0.075]); % [kdx, kdy, kdz]
+K = diag([0.75, 0.75, 0.3]); % [kx, ky, kz]
+Kd = diag([0.2, 0.2, 0.12]); % [kdx, kdy, kdz]
 
 % RBIstark
 zxxk = cross(zIstark, xIstark);
