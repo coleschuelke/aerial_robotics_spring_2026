@@ -42,7 +42,7 @@ end
 %% Student code
 
 % Singularity handling
-eps = 1e-6;
+eps = 1e-12;
 if R_BW(2, 3) > (1-eps) % phi = 90 deg case
     phi = pi/2;
     theta = 0;

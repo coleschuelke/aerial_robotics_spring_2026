@@ -71,12 +71,20 @@ S.oversampFact = 10;
 % load("Data/Stest");
 P = simulateQuadrotorControl(R, S, Pin);
 
+%% Data calculations
 % Calculations for plotting xI
 xI_true = zeros(2, length(P.state.eMat));
 for j=1:length(xI_true)
     xtemp = euler2dcm(P.state.eMat(j, :)).'*[1 0 0].';
     xI_true(:, j) = xtemp(1:2);
 end
+
+% Error calculations
+exy = P.state.rMat(1:10:end-1, 1:2) - R.rIstar(:, 1:2);
+emag = vecnorm(exy, 2, 2);
+[maxidx, emax] = max(emag);
+
+emean = mean(emag(1000:end));
 
 %% Animation
 S2.tVec = P.tVec;

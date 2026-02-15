@@ -37,7 +37,7 @@ R.aIstar = zeros([N, 3]);
 % R.xIstar = [ones([N, 1]), zeros([N, 2])];
 R.xIstar = [xi.', xj.', xk.']; 
 % Matrix of disturbance forces acting on the body, in Newtons, expressed in I
-S.distMat = randn(N, 3);
+S.distMat = 5*randn(N, 3);
 % S.distMat = zeros(N, 3);
 % Initial position in m
 S.state0.r = [0 0 0]';
@@ -50,7 +50,6 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 
-% load("Data/Stest");
 P = simulateQuadrotorControl(R, S, Pin);
 
 S2.tVec = P.tVec;

@@ -154,6 +154,11 @@ xk = x0_aug;
 
 % Main loop
 for k=1:N-1
+    % Normalize R every 100 steps
+    if mod(k, 100) == 0
+        xk = normalizeR(xk);
+    end
+
     % Create the step
     t_span = [tVec(k):dtOut:tVec(k+1)];
 

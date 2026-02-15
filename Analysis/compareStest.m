@@ -3,8 +3,8 @@ clear; clc;
 close all;
 global INPUT_PARSING;
 INPUT_PARSING = false;
-addpath("Functions/");
-addpath("Params/");
+addpath("../Functions/");
+addpath("../Params/");
 % Total simulation time, in seconds
 Tsim = 4;
 % Update interval, in seconds.  This value should be small relative to the

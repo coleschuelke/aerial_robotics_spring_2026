@@ -86,8 +86,8 @@ e2 = [0 1 0].';
 e3 = [0 0 1].';
 
 % Controller gains
-K = diag([0.75, 0.75, 0.3]); % [kx, ky, kz]
-Kd = diag([0.2, 0.2, 0.12]); % [kdx, kdy, kdz]
+K = diag([0.95, 0.95, 0.43]); % [kx, ky, kz]
+Kd = diag([0.25, 0.25, 0.2]); % [kdx, kdy, kdz]
 
 % RBIstark
 zxxk = cross(zIstark, xIstark);

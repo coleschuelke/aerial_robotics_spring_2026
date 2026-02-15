@@ -113,8 +113,15 @@ dcm0 = euler2dcm(x0.e);
 eaMat = S.eaMat;
 dist = S.distMat;
 
+% Take initial rotor speeds if passed 
+try
+    omega0 = S.state0.omega;
+catch
+    omega0 = zeros(4, 1); % Default rotor speeds if not provided
+end
+
 % Create vectorized x0 and add rotor speed initial conditions
-x0_aug = [x0.r; x0.v; dcm0(:); x0.omegaB; zeros(4, 1)];
+x0_aug = [x0.r; x0.v; dcm0(:); x0.omegaB; omega0];
 
 % Repackage the params
 Params.quadParams = S.quadParams;
