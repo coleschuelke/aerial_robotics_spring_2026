@@ -35,7 +35,7 @@ function [rpGtilde,rbGtilde] = gnssMeasSimulator(S,P)
 % References:
 %
 %
-% Author:  
+% Author:  Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -50,7 +50,26 @@ if INPUT_PARSING
 end
 
 %% Student code
+% Unpack state
+rI = S.statek.rI;
+RBI = S.statek.RBI;
 
-%                       Insert your code here 
+% Params
+sp = P.sensorParams;
+
+% Convenience definitions
+ra1B = sp.raB(:, 1);
+
+% Common math
+ra1I = RBI.'*ra1B;
+RLG = Recef2enu(sp.r0G);
+RpG = RLG*sp.RpL*RLG.';
+
+
+
+% rpG measurement
+rpI = rI + ra1I;
+rpG = RLG.'*rpI;
+rpGtilde = rpG + mvnrnd(zeros(3, 1), RpG);
   
 end % EOF gnssMeasSimulator.m
