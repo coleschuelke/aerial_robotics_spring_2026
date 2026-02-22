@@ -59,17 +59,29 @@ sp = P.sensorParams;
 
 % Convenience definitions
 ra1B = sp.raB(:, 1);
+ra2B = sp.raB(:, 2);
 
 % Common math
 ra1I = RBI.'*ra1B;
+ra2I = RBI.'*ra2B;
 RLG = Recef2enu(sp.r0G);
 RpG = RLG*sp.RpL*RLG.';
-
-
 
 % rpG measurement
 rpI = rI + ra1I;
 rpG = RLG.'*rpI;
-rpGtilde = rpG + mvnrnd(zeros(3, 1), RpG);
-  
+rpGtilde = rpG + mvnrnd(zeros(3, 1), RpG).';
+
+% rbG measurement
+rsI = rI + ra2I;
+rsG = RLG.'*rsI;
+rbG = rsG - rpG;
+
+% Special rank-2 cov for baseline noise
+eps = 1e-8;
+rbGu = rbG/norm(rbG);
+RbG = norm(rbG)^2*sp.sigmab^2*(eye(3) - rbGu*rbGu.') + eps*eye(3);
+
+rbGtilde = rbG + mvnrnd(zeros(3, 1), RbG).';
+
 end % EOF gnssMeasSimulator.m

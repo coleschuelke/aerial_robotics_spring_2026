@@ -34,7 +34,7 @@ function [rx] = hdCameraSimulator(rXI,S,P)
 % References:
 %
 %
-% Author:  
+% Author:  Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -51,6 +51,38 @@ end
 
 %% Student code
 
-% ????  Insert your code here 
+% Unpack S
+rI = S.statek.rI;
+RBI = S.statek.RBI;
+
+% Unpack P
+sp = P.sensorParams;
+
+% Compute RCI
+RCI = sp.RCB*RBI;
+
+% Compute tC
+tI = rI + RBI.'*sp.rocB;
+tC = RCI*tI;
+
+% Compute homogenous coords on the camera plane
+P = [RCI, -tC];
+rXIh = [rXI; 1];
+xh = sp.K*P*rXIh;
+
+if xh(3) <= 0 % Behind us, we def can't see
+    rx = [];
+    return
+end
+
+% Compute pixel coordinates on the image plane
+x = [xh(1)/xh(3);xh(2)/xh(3)]; % m
+
+% Check whether object is visible
+if any(abs(x) > sp.imagePlaneSize.')
+    rx = [];
+else
+    rx = 1/sp.pixelSize * x + mvnrnd(zeros(2, 1), sp.Rc).'; % Pixels
+
 
 end 

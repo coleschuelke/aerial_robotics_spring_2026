@@ -44,7 +44,7 @@ function [ftildeB,omegaBtilde] = imuSimulator(S,P)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Cole Schuelke
 %+==============================================================================+
 
 %% Validate inputs
@@ -64,7 +64,45 @@ if INPUT_PARSING
 end
 
 %% Student code
+persistent bakm1 bgkm1
 
-%                       Insert your code here 
+% Unpack S
+RBI = S.statek.RBI;
+aI = S.statek.aI;
+omegaB = S.statek.omegaB;
+omegaBdot = S.statek.omegaBdot;
+
+% Unpack P
+sp = P.sensorParams;
+c = P.constants;
+
+% Convenient definitions
+e3 = [0, 0, 1].';
+
+% Handle bias from last step
+if(isempty(bakm1))
+    qbass = sp.Qa2 / (1 - sp.alphaa^2);
+    bakm1 = mvnrnd(zeros(3, 1), qbass).'; % Initialize with a ss value
+end
+if isempty(bgkm1)
+    qbgss = sp.Qg2 / (1 - sp.alphag^2);
+    bgkm1 = mvnrnd(zeros(3, 1), qbgss).'; % Inialize with a ss value
+end
+
+% Calculate current accelerometer bias
+bak = sp.alphaa * bakm1 + mvnrnd(zeros(3, 1), sp.Qa2).';
+
+% Calculate specific force measurement
+ftildeB = RBI*(aI + c.g*e3) + cross(omegaB, cross(omegaB, sp.lB)) + cross(omegaBdot, sp.lB) + bak + mvnrnd(zeros(3, 1), sp.Qa).';
+
+% Calculate current gyro bias
+bgk = sp.alphag * bgkm1 + mvnrnd(zeros(3, 1), sp.Qg2).';
+
+% Calculate rate measurement
+omegaBtilde = omegaB + bgk + mvnrnd(zeros(3, 1), sp.Qg).';
+
+% Update the biases for next step
+bakm1 = bak;
+bgkm1 = bgk;
 
 end % EOF imuSimulator.m

@@ -21,9 +21,10 @@ function [lat,lon,alt] = ecef2lla(pVec)
 % References:
 %
 %
-% Author:  
+% Author:
 %+==============================================================================+
 
+addpath("/home/qcschuelke/Desktop/code/aerial_robotics/aerial_robotics_spring_2026/Params")
 navConstants;
 e = sqrt((AA^2 - BB^2)/AA^2);
 ep = sqrt((AA^2 - BB^2)/BB^2);
