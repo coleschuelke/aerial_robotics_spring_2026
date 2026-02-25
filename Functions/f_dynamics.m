@@ -57,7 +57,7 @@ function [xkp1] = f_dynamics(xk,uk,vk,delt,RBIHatk,P)
 % References:
 %
 %
-% Author:
+% Author: Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -79,7 +79,7 @@ if(abs(delt - P.sensorParams.IMUdelt) > 1e-9)
   error('Propagation time must be same as IMU measurement time');
 end
 
-%% Unpack state
+% Unpack state
 rIk = xk(1:3);
 vIk = xk(4:6);
 ek = xk(7:9);
@@ -93,7 +93,24 @@ vak = vk(7:9);
 va2k = vk(10:12);
 RBIk = euler2dcm(ek)*RBIHatk;
 
-% ????? Insert your code here
+% Unpack Params
+sp = P.sensorParams;
+c = P.constants;
+
+% Compute derived quantities
+dphik = ek(1); dthetak = ek(2);
+S = (1 / cos(dphik)) * [cos(dphik)*cos(dthetak), 0, cos(dphik)*sin(dthetak);
+    sin(dphik)*sin(dthetak), cos(dphik), -cos(dthetak)*sin(dphik);
+    -sin(dthetak), 0, cos(dthetak)];
+omegaBk = omegaBtildek - bgk - vgk;
+aIk = RBIk.'*(fBtildek - bak - vak) - c.g*[0 0 1].';
+edotk = S*omegaBk;
+
+rIkp1 = rIk + delt*vIk + 0.5*delt^2*aIk;
+vIkp1 = vIk + delt*aIk;
+ekp1 = ek + delt*edotk;
+bakp1 = sp.alphaa*bak + va2k;
+bgkp1 = sp.alphag*bgk + vg2k;
 
 %% Pack propagated state into output vector
 xkp1 = [rIkp1;vIkp1;ekp1;bakp1;bgkp1];

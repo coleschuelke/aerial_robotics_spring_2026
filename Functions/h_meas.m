@@ -65,7 +65,7 @@ function [zk] = h_meas(xk,wk,RBIBark,rXIMat,mcVeck,P)
 % References:
 %
 %
-% Author: 
+% Author: Quentin Cole Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -85,7 +85,21 @@ if INPUT_PARSING
 end
 
 %% Student code
+% Unpack state
+rIk = xk(1:3);
+vIk = xk(4:6);
+ek = xk(7:9);
+bak = xk(10:12);
+bgk = xk(13:15);
 
-% ????? Insert your code here
+% Unpack params
+sp = P.sensorParams;
+qp = P.quadParams;
+
+ra1B = sp.raB(:, 1);
+ra2B = sp.raB(:, 2);
+rbBu = (ra2B - ra1B) / norm(ra2B - ra1B);
+rbIu = RBIBark.'*rbBu;
+
 
 end 
