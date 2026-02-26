@@ -5,7 +5,11 @@ global INPUT_PARSING;
 INPUT_PARSING = false;
 addpath("Functions/");
 addpath("Params/");
-addpath("Data/")
+addpath("Data/");
+addpath("Analysis/");
+% rng seed for debugging
+rng(52);
+
 % Quadrotor parameters and constants
 quadParamsScript;
 constantsScript;
@@ -69,7 +73,11 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 % Random Features
+<<<<<<< HEAD
 S.rXIMat = unifrnd(0, 5, 10, 3);
+=======
+S.rXIMat = unifrnd(-10, 10, 10, 3);
+>>>>>>> 72e80c7 (remove addpath from loops)
 
 % load("Data/Stest");
 P = simulateQuadrotorEstimationAndControl(R, S, Pin);
