@@ -29,12 +29,11 @@ function [RBI] = wahbaSolver(aVec,vIMat,vBMat)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Cole Schuelke
 %+==============================================================================+  
 
 global INPUT_PARSING;
 if INPUT_PARSING
-if 0  % set to 1 to check inputs 
   issize =@(x,z1,z2) validateattributes(x,{'numeric'},{'size',[z1,z2]});
   ip = inputParser; ip.StructExpand = true; ip.KeepUnmatched = true;
   ip.addRequired('aVec',@(x)issize(x,NaN,1));
@@ -44,7 +43,10 @@ if 0  % set to 1 to check inputs
 end
 
 %% Student code
-
-%                       Insert your code here 
+B = zeros(3);
+for i=1:length(aVec)
+B = B + aVec(i)*vBMat(i)*vIMat(i).';
+[U, ~, V] = svd(B);
+RBI = U*diag([1, 1, det(U)*det(V)])*V.';
 
 end % EOF wahbaSolver.m

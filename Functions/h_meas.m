@@ -96,10 +96,31 @@ bgk = xk(13:15);
 sp = P.sensorParams;
 qp = P.quadParams;
 
+% Handle the GNSS measurements
 ra1B = sp.raB(:, 1);
 ra2B = sp.raB(:, 2);
 rbBu = (ra2B - ra1B) / norm(ra2B - ra1B);
 rbIu = RBIBark.'*rbBu;
 
+rpI = rIk + RBIBark.'*ra1B;
 
+% Handle the camera measurements
+nCam = nnz(mcVeck);
+rcI = rIk + RBIBark.'*sp.rocB;
+camMeas = zeros(3, nCam);
+j = 1;
+for i=1:length(mcVeck)
+    if mcVeck(i) ~= 0
+        XiI = rXIMat(i, :).'; % Coordinates of measured feature in the I frame
+        viI = XiI - rcI;
+        viIu = viI / norm(viI);
+        viCu = sp.RCB*RBIBark*viIu;
+        camMeas(:, j) = viCu;
+        j = j+1;
+    end
+end
+
+zClean = [rpI; rbIu; camMeas(:)];
+
+zk = zClean + wk;
 end 
