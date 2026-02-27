@@ -1,11 +1,14 @@
 % Top-level script for calling simulateQuadrotorDynamics
-clear; clc;
+clear all; clc;
 close all;
 global INPUT_PARSING;
 INPUT_PARSING = false;
 addpath("Functions/");
 addpath("Params/");
 addpath("Data/")
+% rng seed for debugging
+rng(46);
+
 % Quadrotor parameters and constants
 quadParamsScript;
 constantsScript;
@@ -69,10 +72,10 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 % Random Features
-S.rXIMat = unifrnd(0, 5, 10, 3);
+S.rXIMat = unifrnd(0, 2, 10, 3);
 
 % load("Data/Stest");
-P = simulateQuadrotorEstimationAndControl(R, S, Pin);
+[P, Est] = simulateQuadrotorEstimationAndControl(R, S, Pin);
 
 %% Data calculations
 % Calculations for plotting xI
@@ -101,7 +104,8 @@ visualizeQuad(S2);
 
 %% Plotting
 figure(1);clf;
-plot(P.tVec,P.state.rMat(:,3), 'b-', 'LineWidth', 3); grid on;
+plot(P.tVec,P.state.rMat(:,3), 'b-', 'LineWidth', 3); grid on; hold on;
+plot(P.tVec(1:10:end-1), Est.rI(:, 3), 'y.', 'LineWidth', 3);
 yline(0, 'k-.');
 xlabel('Time (sec)', 'FontSize', 20);
 ylabel('Vertical (m)', 'FontSize', 20);
@@ -125,3 +129,14 @@ ylabel('Y (m)', 'FontSize', 20);
 set(gca, 'FontSize', 14);
 title('Horizontal position of CM', 'FontSize', 20);
 legend('Planned Trajectory', 'Flown Trajectory', 'Circle Center', 'x_b Direction', 'FontSize', 12);
+
+figure(3);clf; hold on;
+plot(P.tVec,P.state.eMat(:,1), 'r-', 'LineWidth', 3);
+plot(P.tVec,P.state.eMat(:,2), 'g-', 'LineWidth', 3);
+plot(P.tVec,P.state.eMat(:,3), 'b-', 'LineWidth', 3); grid on;
+yline(0, 'k-.');
+xlabel('Time (sec)', 'FontSize', 20);
+ylabel('Angle (rad)', 'FontSize', 20);
+set(gca, 'FontSize', 14);
+title('Euler Angles', 'FontSize', 20);
+legend('Phi', 'Theta', 'Psi', 'FontSize', 12)

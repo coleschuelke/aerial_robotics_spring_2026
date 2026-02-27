@@ -1,4 +1,4 @@
-function [Q] = simulateQuadrotorEstimationAndControl(R,S,P)
+function [Q, Est] = simulateQuadrotorEstimationAndControl(R,S,P)
 % simulateQuadrotorEstimationAndControl : Simulates closed-loop estimation and
 %                                         control of a quadrotor aircraft.
 %
@@ -141,7 +141,7 @@ statek.RBI = zeros(3,3);
 [Nf,~] = size(S.rXIMat);
 Se.rXIMat = S.rXIMat;
 Se.delt = dtIn;
-XMat = []; tVec = [];
+XMat = []; tVec = []; EstMat = [];
 
 %% Iterate through all time points
 for kk=1:N-1
@@ -167,7 +167,11 @@ for kk=1:N-1
   end
   [M.ftildeB,M.omegaBtilde] = imuSimulator(Sm,P);
   % Call estimator
-  E = stateEstimatorUKF(Se,M,P); 
+  E = stateEstimatorUKF(Se,M,P);
+  if nargout > 1
+      EstVeck = [E.statek.rI; E.statek.RBI(:); E.statek.vI; E.statek.omegaB];
+      EstMat = [EstMat; EstVeck.'];
+  end
   if(~isempty(E.statek))
     % Call trajectory and attitude controllers
     Rtc.rIstark = R.rIstar(kk,:)';
@@ -223,7 +227,9 @@ for mm=1:M
   RBI(:) = XMat(mm,7:15);
   Q.state.eMat(mm,:) = dcm2euler(RBI)';  
 end
+if nargout > 2
+    Est.rI = EstMat(:, 1:3);
 
-
+end
   
 

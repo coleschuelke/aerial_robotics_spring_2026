@@ -93,7 +93,8 @@ end
 bak = sp.alphaa * bakm1 + mvnrnd(zeros(3, 1), sp.Qa2).';
 
 % Calculate specific force measurement
-ftildeB = RBI*(aI + c.g*e3) + cross(omegaB, cross(omegaB, sp.lB)) + cross(omegaBdot, sp.lB) + bak + mvnrnd(zeros(3, 1), sp.Qa).';
+% ftildeB = RBI*(aI + c.g*e3) + cross(omegaB, cross(omegaB, sp.lB)) + cross(omegaBdot, sp.lB) + bak + mvnrnd(zeros(3, 1), sp.Qa).';
+ftildeB = RBI*(aI + c.g*e3) + bak + mvnrnd(zeros(3, 1), sp.Qa).';
 
 % Calculate current gyro bias
 bgk = sp.alphag * bgkm1 + mvnrnd(zeros(3, 1), sp.Qg2).';
