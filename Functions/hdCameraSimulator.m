@@ -70,7 +70,7 @@ P = [RCI, -tC];
 rXIh = [rXI; 1];
 xh = sp.K*P*rXIh;
 
-if xh(3) <= 0 % Behind us, we def can't see
+if xh(3) <= 0 % Behind us, we def can't see, potentially should account for focal length here
     rx = [];
     return
 end
@@ -79,7 +79,7 @@ end
 x = [xh(1)/xh(3);xh(2)/xh(3)]; % m
 
 % Check whether object is visible
-if any(abs(x) > sp.imagePlaneSize.')
+if any(abs(x) > 0.5*sp.imagePlaneSize.')
     rx = [];
 else
     rx = 1/sp.pixelSize * x + mvnrnd(zeros(2, 1), sp.Rc).'; % Pixels
