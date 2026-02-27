@@ -45,8 +45,9 @@ end
 %% Student code
 B = zeros(3);
 for i=1:length(aVec)
-B = B + aVec(i)*vBMat(i)*vIMat(i).';
-[U, ~, V] = svd(B);
-RBI = U*diag([1, 1, det(U)*det(V)])*V.';
+    B = B + aVec(i)*vBMat(i)*vIMat(i).';
+    [U, ~, V] = svd(B);
+    RBI = U*diag([1, 1, det(U)*det(V)])*V.';
+end
 
 end % EOF wahbaSolver.m

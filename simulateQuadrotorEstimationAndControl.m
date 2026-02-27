@@ -100,7 +100,7 @@ function [Q, Est] = simulateQuadrotorEstimationAndControl(R,S,P)
 % References:
 %
 %
-% Author:  
+% Author: Quentin Schuelke
 %+==============================================================================+  
 
 %% Validate inputs
@@ -141,7 +141,7 @@ statek.RBI = zeros(3,3);
 [Nf,~] = size(S.rXIMat);
 Se.rXIMat = S.rXIMat;
 Se.delt = dtIn;
-XMat = []; tVec = []; EstMat = [];
+XMat = []; tVec = []; estMat = []; covMat = [];
 
 %% Iterate through all time points
 for kk=1:N-1
@@ -170,7 +170,8 @@ for kk=1:N-1
   E = stateEstimatorUKF(Se,M,P);
   if nargout > 1
       EstVeck = [E.statek.rI; E.statek.RBI(:); E.statek.vI; E.statek.omegaB];
-      EstMat = [EstMat; EstVeck.'];
+      estMat = [estMat; EstVeck.'];
+      covMat = cat(3, covMat, E.Pk);
   end
   if(~isempty(E.statek))
     % Call trajectory and attitude controllers
@@ -227,9 +228,18 @@ for mm=1:M
   RBI(:) = XMat(mm,7:15);
   Q.state.eMat(mm,:) = dcm2euler(RBI)';  
 end
-if nargout > 2
-    Est.rI = EstMat(:, 1:3);
-
+if nargout > 1
+    Est.state.eMat = zeros(size(estMat, 1), 3);
+    for jj=1:size(estMat, 1)
+        RBI(:) = estMat(jj, 4:12);
+        Est.state.eMat(jj, :) = dcm2euler(RBI).';
+    end
+    Est.tVec = linspace(tVec(1), tVec(end), size(estMat, 1));
+    Est.state.rMat = estMat(:, 1:3);
+    Est.state.vMat = estMat(:, 13:15);
+    Est.state.omegaBMat = estMat(:, 16:18);
+    Est.PMat = covMat;
+end
 end
   
 
