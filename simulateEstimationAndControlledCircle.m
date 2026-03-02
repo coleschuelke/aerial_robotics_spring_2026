@@ -101,24 +101,39 @@ visualizeQuad(S2);
 %% Plotting
 % Height
 sigz = Est.PMat(3, 3, :);
+sigz_std = sqrt(squeeze(sigz)); % Extract std dev
+
 figure(1);clf;
 plot(P.tVec,P.state.rMat(:,3), 'b-', 'LineWidth', 3); grid on; hold on;
 plot(Est.tVec, Est.state.rMat(:, 3), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
+
+% Height 3-sigma bounds
+plot(Est.tVec, Est.state.rMat(:, 3) + 3*sigz_std, 'Color', '#ba9904', 'LineStyle', '--', 'LineWidth', 1);
+plot(Est.tVec, Est.state.rMat(:, 3) - 3*sigz_std, 'Color', '#ba9904', 'LineStyle', '--', 'LineWidth', 1);
+
 yline(0, 'k-.');
 xlabel('Time (sec)', 'FontSize', 20);
 ylabel('Vertical (m)', 'FontSize', 20);
 set(gca, 'FontSize', 14);
 title('Vertical position of CM', 'FontSize', 20);
-legend('Flown Height', 'Estimated Height', 'Planned Height', 'FontSize', 12)
+legend('Flown Height', 'Estimated Height', '+/- 3\sigma Bounds', 'Planned Height', 'FontSize', 12)
 
 % X-Y
 sigx = Est.PMat(1, 1, :);
 sigy = Est.PMat(2, 2, :);
+sigx_std = sqrt(squeeze(sigx)); % Extract std dev
+sigy_std = sqrt(squeeze(sigy)); 
+
 figure(2);clf;
 hold on;
 plot(xI, yI, 'k-.', 'LineWidth', 3);
 plot(P.state.rMat(:,1), P.state.rMat(:,2), 'b-', 'LineWidth', 3);
 plot(Est.state.rMat(:, 1), Est.state.rMat(:, 2), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
+
+% X-Y 3-sigma bounds (plotted as an outer envelope)
+plot(Est.state.rMat(:, 1) + 3*sigx_std, Est.state.rMat(:, 2) + 3*sigy_std, 'Color', '#ba9904', 'LineStyle', '--', 'LineWidth', 1);
+plot(Est.state.rMat(:, 1) - 3*sigx_std, Est.state.rMat(:, 2) - 3*sigy_std, 'Color', '#ba9904', 'LineStyle', '--', 'LineWidth', 1);
+
 plot(0, 0, 'gx', 'MarkerSize', 15, 'LineWidth', 5);
 for i=1:length(xI_true)
     if mod(i, 500) == 0
@@ -130,19 +145,37 @@ xlabel('X (m)', 'FontSize', 20);
 ylabel('Y (m)', 'FontSize', 20);
 set(gca, 'FontSize', 14);
 title('Horizontal position of CM', 'FontSize', 20);
-legend('Planned Trajectory', 'Flown Trajectory', 'Estimated Trajectory', 'Circle Center', 'x_b Direction', 'FontSize', 12);
+legend('Planned Trajectory', 'Flown Trajectory', 'Estimated Trajectory', '+3\sigma Bound', '-3\sigma Bound', 'Circle Center', 'x_b Direction', 'FontSize', 12);
 
 % Attitude
-sigphi = Est.PMat(7);
-sigtheta = Est.PMat(8);
-sigpsi = Est.PMat(9);
+% Corrected indexing to extract the time-series variance from the diagonals
+sigphi = Est.PMat(7, 7, :);
+sigtheta = Est.PMat(8, 8, :);
+sigpsi = Est.PMat(9, 9, :);
+
+sigphi_std = sqrt(squeeze(sigphi));
+sigtheta_std = sqrt(squeeze(sigtheta));
+sigpsi_std = sqrt(squeeze(sigpsi));
+
 figure(3);clf; hold on;
 plot(P.tVec,P.state.eMat(:,1), 'r-', 'LineWidth', 3);
 plot(P.tVec,P.state.eMat(:,2), 'g-', 'LineWidth', 3);
 plot(P.tVec,P.state.eMat(:,3), 'b-', 'LineWidth', 3); 
 plot(Est.tVec,Est.state.eMat(:, 1), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
 plot(Est.tVec,Est.state.eMat(:, 2), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
-plot(Est.tVec,Est.state.eMat(:, 3), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);grid on;
+plot(Est.tVec,Est.state.eMat(:, 3), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
+
+% Attitude 3-sigma bounds
+plot(Est.tVec, Est.state.eMat(:, 1) + 3*sigphi_std, 'r--', 'LineWidth', 1);
+plot(Est.tVec, Est.state.eMat(:, 1) - 3*sigphi_std, 'r--', 'LineWidth', 1);
+
+plot(Est.tVec, Est.state.eMat(:, 2) + 3*sigtheta_std, 'g--', 'LineWidth', 1);
+plot(Est.tVec, Est.state.eMat(:, 2) - 3*sigtheta_std, 'g--', 'LineWidth', 1);
+
+plot(Est.tVec, Est.state.eMat(:, 3) + 3*sigpsi_std, 'b--', 'LineWidth', 1);
+plot(Est.tVec, Est.state.eMat(:, 3) - 3*sigpsi_std, 'b--', 'LineWidth', 1);
+
+grid on;
 yline(0, 'k-.');
 xlabel('Time (sec)', 'FontSize', 20);
 ylabel('Angle (rad)', 'FontSize', 20);
