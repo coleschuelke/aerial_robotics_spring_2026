@@ -95,6 +95,41 @@ function [Q, Est] = simulateQuadrotorEstimationAndControl(R,S,P)
 %           omegaBMat = Mx3 matrix composed such that omegaBMat(k,:)' is the
 %                       3x1 angular rate vector expressed in the body frame in
 %                       radians, that applies at tVec(k).
+% Est --------- Optional structure with the following elements:
+%
+%          tVec = Nx1 vector of output sample time points, in seconds, where
+%                 Q.tVec(1) = R.tVec(1), Q.tVec(M) = R.tVec(N), and M =
+%                 (N-1)*oversampFact + 1.
+%  
+%         state = Estimated state of the quad at times in tVec, expressed as a
+%                 structure with the following elements:
+%                   
+%                rMat = Nx3 matrix composed such that rMat(k,:)' is the 3x1
+%                       estimated position at tVec(k) in the I frame, in meters.
+% 
+%                eMat = Nx3 matrix composed such that eMat(k,:)' is the 3x1
+%                       vector of estimated Euler angles at tVec(k), in radians,
+%                       indicating the attitude.
+%
+%                vMat = Nx3 matrix composed such that vMat(k,:)' is the 3x1
+%                       estimated velocity at tVec(k) with respect to the I frame
+%                       and expressed in the I frame, in meters per
+%                       second.
+%                 
+%           omegaBMat = Nx3 matrix composed such that omegaBMat(k,:)' is the
+%                       3x1 estimated angular rate vector expressed in the body frame in
+%                       radians, that applies at tVec(k).
+%
+%          PMat = nx-by-nx-by-N error covariance matrix for the estimator state
+%                 vector xk, which is defined as 
+% 
+%                 xk = [rI', vI', e', ba', bg']'
+%
+%                 where all corresponding quantities are identical to those
+%                 defined for Est.state and where e is the 3x1 error Euler
+%                 angle vector defined such that for an estimate RBIHat of the
+%                 attitude, the true attitude is RBI = D(e)*RBIHat, where D(e)
+%                 is the DCM formed from the error Euler angle vector e.
 %
 %+------------------------------------------------------------------------------+
 % References:

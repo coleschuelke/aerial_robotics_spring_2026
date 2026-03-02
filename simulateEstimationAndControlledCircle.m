@@ -73,7 +73,7 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 % Random Features
-S.rXIMat = unifrnd(-10, 10, 10, 3);
+S.rXIMat = []; %unifrnd(-10, 10, 10, 3);
 
 % load("Data/Stest");
 [P, Est] = simulateQuadrotorEstimationAndControl(R, S, Pin);
@@ -100,53 +100,4 @@ S2.bounds=1*[-5 5 -5 5 -5 5];
 visualizeQuad(S2);
 
 %% Plotting
-% Height
-sigz = Est.PMat(3, 3, :);
-figure(1);clf;
-plot(P.tVec,P.state.rMat(:,3), 'b-', 'LineWidth', 3); grid on; hold on;
-plot(Est.tVec, Est.state.rMat(:, 3), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
-yline(0, 'k-.');
-xlabel('Time (sec)', 'FontSize', 20);
-ylabel('Vertical (m)', 'FontSize', 20);
-set(gca, 'FontSize', 14);
-title('Vertical position of CM', 'FontSize', 20);
-legend('Flown Height', 'Estimated Height', 'Planned Height', 'FontSize', 12)
-
-% X-Y
-sigx = Est.PMat(1, 1, :);
-sigy = Est.PMat(2, 2, :);
-figure(2);clf;
-hold on;
-plot(xI, yI, 'k-.', 'LineWidth', 3);
-plot(P.state.rMat(:,1), P.state.rMat(:,2), 'b-', 'LineWidth', 3);
-plot(Est.state.rMat(:, 1), Est.state.rMat(:, 2), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
-plot(0, 0, 'gx', 'MarkerSize', 15, 'LineWidth', 5);
-for i=1:length(xI_true)
-    if mod(i, 500) == 0
-        plot([P.state.rMat(i, 1), P.state.rMat(i, 1)+xI_true(1, i)], [P.state.rMat(i, 2), P.state.rMat(i, 2)+xI_true(2, i)], 'r-', 'LineWidth', 2);
-    end
-end
-axis equal; grid on;
-xlabel('X (m)', 'FontSize', 20);
-ylabel('Y (m)', 'FontSize', 20);
-set(gca, 'FontSize', 14);
-title('Horizontal position of CM', 'FontSize', 20);
-legend('Planned Trajectory', 'Flown Trajectory', 'Estimated Trajectory', 'Circle Center', 'x_b Direction', 'FontSize', 12);
-
-% Attitude
-sigphi = Est.PMat(7);
-sigtheta = Est.PMat(8);
-sigpsi = Est.PMat(9);
-figure(3);clf; hold on;
-plot(P.tVec,P.state.eMat(:,1), 'r-', 'LineWidth', 3);
-plot(P.tVec,P.state.eMat(:,2), 'g-', 'LineWidth', 3);
-plot(P.tVec,P.state.eMat(:,3), 'b-', 'LineWidth', 3); 
-plot(Est.tVec,Est.state.eMat(:, 1), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
-plot(Est.tVec,Est.state.eMat(:, 2), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);
-plot(Est.tVec,Est.state.eMat(:, 3), 'Color', '#ba9904', 'LineStyle', ':', 'LineWidth', 2);grid on;
-yline(0, 'k-.');
-xlabel('Time (sec)', 'FontSize', 20);
-ylabel('Angle (rad)', 'FontSize', 20);
-set(gca, 'FontSize', 14);
-title('Attitude (Euler Angles)', 'FontSize', 20);
-legend('Phi', 'Theta', 'Psi', 'Estimates', 'FontSize', 12)
+plotQuad(R, P, Est)
