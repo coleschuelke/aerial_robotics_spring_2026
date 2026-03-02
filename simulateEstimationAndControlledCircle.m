@@ -5,7 +5,8 @@ global INPUT_PARSING;
 INPUT_PARSING = false;
 addpath("Functions/");
 addpath("Params/");
-addpath("Data/")
+addpath("Data/");
+addpath("Analysis/");
 % rng seed for debugging
 rng(52);
 
@@ -72,7 +73,7 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 % Random Features
-S.rXIMat = []; %unifrnd(-10, 10, 10, 3);
+S.rXIMat = unifrnd(-10, 10, 10, 3);
 
 % load("Data/Stest");
 [P, Est] = simulateQuadrotorEstimationAndControl(R, S, Pin);
