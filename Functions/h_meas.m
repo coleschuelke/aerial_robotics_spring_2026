@@ -96,25 +96,28 @@ bgk = xk(13:15);
 sp = P.sensorParams;
 qp = P.quadParams;
 
+% Get RBI estimate
+RBIk = euler2dcm(xk(7:9))*RBIBark;
+
 % Handle the GNSS measurements
 ra1B = sp.raB(:, 1);
 ra2B = sp.raB(:, 2);
 rbBu = (ra2B - ra1B) / norm(ra2B - ra1B);
-rbIu = RBIBark.'*rbBu;
+rbIu = RBIk.'*rbBu;
 
-rpI = rIk + RBIBark.'*ra1B;
+rpI = rIk + RBIk.'*ra1B;
 
 % Handle the camera measurements
 nCam = nnz(mcVeck);
-rcI = rIk + RBIBark.'*sp.rocB;
+rcI = rIk + RBIk.'*sp.rocB;
 camMeas = zeros(3, nCam);
 j = 1;
 for i=1:length(mcVeck)
-    if mcVeck(i) ~= 0
+    if mcVeck(i) ~= 0 % We can see the feature
         XiI = rXIMat(i, :).'; % Coordinates of measured feature in the I frame
         viI = XiI - rcI;
         viIu = viI / norm(viI);
-        viCu = sp.RCB*RBIBark*viIu;
+        viCu = sp.RCB*RBIk*viIu;
         camMeas(:, j) = viCu;
         j = j+1;
     end

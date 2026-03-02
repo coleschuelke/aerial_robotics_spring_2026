@@ -1,5 +1,5 @@
 % Top-level script for calling simulateQuadrotorDynamics
-clear; clc;
+clear all; clc;
 close all;
 global INPUT_PARSING;
 INPUT_PARSING = false;
@@ -51,28 +51,54 @@ S.state0.omegaB = [0 0 0]';
 % Oversampling factor
 S.oversampFact = 10;
 % Random Features
-S.rXIMat = []; % unifrnd(0, 2, 10, 3);
+S.rXIMat = unifrnd(-10, 10, 10, 3);
 
-P = simulateQuadrotorEstimationAndControl(R, S, Pin);
+[P, Est] = simulateQuadrotorEstimationAndControl(R, S, Pin);
 
+%% Animation
 S2.tVec = P.tVec;
 S2.rMat = P.state.rMat;
 S2.eMat = P.state.eMat;
 S2.plotFrequency = 20;
 S2.makeGifFlag = false;
 S2.gifFileName = 'testGif.gif';
-S2.bounds=1*[-2 2 -2 2 -2 2];
+S2.bounds=1*[-5 5 -5 5 -5 5];
 visualizeQuad(S2);
 
+%% Plotting
 figure(1);clf;
-plot(P.tVec,P.state.rMat(:,3)); grid on;
-xlabel('Time (sec)');
-ylabel('Vertical (m)');
-title('Vertical position of CM'); 
+plot(P.tVec,P.state.rMat(:,3), 'b-', 'LineWidth', 3); grid on; hold on;
+plot(Est.tVec, Est.state.rMat(:, 3), 'y.', 'LineWidth', 3);
+yline(0, 'k-.');
+xlabel('Time (sec)', 'FontSize', 20);
+ylabel('Vertical (m)', 'FontSize', 20);
+set(gca, 'FontSize', 14);
+title('Vertical position of CM', 'FontSize', 20);
+legend('Flown Height', 'Planned Height', 'FontSize', 12)
 
 figure(2);clf;
-plot(P.state.rMat(:,1), P.state.rMat(:,2)); 
+hold on;
+plot(zeros(N, 3), zeros(N, 3), 'k-.', 'LineWidth', 3);
+plot(P.state.rMat(:,1), P.state.rMat(:,2), 'b-', 'LineWidth', 3);
+plot(Est.state.rMat(:, 1), Est.state.rMat(:, 2), 'y.', 'LineWidth', 3);
+plot(0, 0, 'gx', 'MarkerSize', 15, 'LineWidth', 5);
 axis equal; grid on;
-xlabel('X (m)');
-ylabel('Y (m)');
-title('Horizontal position of CM');
+xlabel('X (m)', 'FontSize', 20);
+ylabel('Y (m)', 'FontSize', 20);
+set(gca, 'FontSize', 14);
+title('Horizontal position of CM', 'FontSize', 20);
+legend('Planned Trajectory', 'Flown Trajectory', 'Estimated Trajectory', 'Circle Center', 'x_b Direction', 'FontSize', 12);
+
+figure(3);clf; hold on;
+plot(P.tVec,P.state.eMat(:,1), 'r-', 'LineWidth', 3);
+plot(P.tVec,P.state.eMat(:,2), 'g-', 'LineWidth', 3);
+plot(P.tVec,P.state.eMat(:,3), 'b-', 'LineWidth', 3); 
+plot(Est.tVec,Est.state.eMat(:, 1), 'r.', 'LineWidth', 3);
+plot(Est.tVec,Est.state.eMat(:, 2), 'g.', 'LineWidth', 3);
+plot(Est.tVec,Est.state.eMat(:, 3), 'b.', 'LineWidth', 3);grid on;
+yline(0, 'k-.');
+xlabel('Time (sec)', 'FontSize', 20);
+ylabel('Angle (rad)', 'FontSize', 20);
+set(gca, 'FontSize', 14);
+title('Euler Angles', 'FontSize', 20);
+legend('Phi', 'Theta', 'Psi', 'FontSize', 12)
