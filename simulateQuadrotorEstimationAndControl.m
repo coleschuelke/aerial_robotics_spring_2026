@@ -95,7 +95,7 @@ function [Q, Est] = simulateQuadrotorEstimationAndControl(R,S,P)
 %           omegaBMat = Mx3 matrix composed such that omegaBMat(k,:)' is the
 %                       3x1 angular rate vector expressed in the body frame in
 %                       radians, that applies at tVec(k).
-% Est --------- Structure with the following elements:
+% Est --------- Optional structure with the following elements:
 %
 %          tVec = Nx1 vector of output sample time points, in seconds, where
 %                 Q.tVec(1) = R.tVec(1), Q.tVec(M) = R.tVec(N), and M =
