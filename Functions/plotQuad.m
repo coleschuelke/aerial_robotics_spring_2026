@@ -8,6 +8,11 @@ function plotQuad(R, Q, Est)
 %   Q   - True simulated state structure (or array)
 %   Est - Estimated state structure (or array)
 
+% Convert cell arrays to struct arrays if necessary
+    if iscell(R),   R   = [R{:}];   end
+    if iscell(Q),   Q   = [Q{:}];   end
+    if iscell(Est), Est = [Est{:}]; end
+
     numRuns = length(Est);
     isMC = numRuns > 1;
 
