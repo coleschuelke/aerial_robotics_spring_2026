@@ -13,7 +13,7 @@ INPUT_PARSING = false;
 rng(1234);
 % Assert this flag to call the full estimation and control simulator;
 % otherwise, only the control simulator is called.
-estimationFlag = 0;
+estimationFlag = 1;
 % Total simulation time, in seconds
 Tsim = 10;
 % Update interval, in seconds

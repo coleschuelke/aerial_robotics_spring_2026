@@ -63,12 +63,16 @@ R = sp.pixelSize^2 * kron(eye(N), sp.Rc);
 Rinv = inv(R);
 
 for i=1:N
-    Pi = sp.K*[M.RCIArray{i}, M.rcArray{i}];
+    RCI = M.RCIArray{i};
+    tC = RCI*M.rcArray{i};
+    Pi = sp.K*[RCI , -tC];
     p1T = Pi(1, :);
     p2T = Pi(2, :);
     p3T = Pi(3, :);
-    xtilde = M.rxArray{i}(1);
-    ytilde = M.rxArray{i}(2);
+    
+    % Convert from pixels to m
+    xtilde = sp.pixelSize*M.rxArray{i}(1);
+    ytilde = sp.pixelSize*M.rxArray{i}(2);
 
     Hprime(2*i - 1, :) = xtilde*p3T - p1T;
     Hprime(2*i, :) = ytilde*p3T - p2T;

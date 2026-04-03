@@ -38,7 +38,7 @@ fprintf('rXI compared with rXIHat (should be within a few cm): ');
 [rXI  rXIHat]
 
 %% Calculate the Error
-fprintf('The error in the estimate (cm) is: ');
+fprintf('The error in the estimate (m) is: ');
 abs(rXI - rXIHat)
 
 %% Examine diagonal elements of Px

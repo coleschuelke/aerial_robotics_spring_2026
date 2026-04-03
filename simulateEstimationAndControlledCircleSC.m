@@ -1,0 +1,111 @@
+% Top-level script for calling simulateQuadrotorDynamics
+clear all; clc;
+close all;
+global INPUT_PARSING;
+INPUT_PARSING = false;
+addpath("Functions/");
+addpath("Params/");
+addpath("Data/");
+addpath("Analysis/");
+% rng seed for debugging
+rng(52);
+
+% Quadrotor parameters and constants
+quadParamsScript;
+constantsScript;
+sensorParamsScript;
+Pin.quadParams = quadParams;
+Pin.constants = constants;
+Pin.sensorParams = sensorParams;
+% Total simulation time, in seconds
+Tsim = 10;
+% Update interval, in seconds.  This value should be small relative to the
+% shortest time constant of your system.
+delt = 0.005;
+% Time vector, in seconds 
+N = floor(Tsim/delt);
+
+% Math for trajectory
+T = 10;
+r = 4;
+t = 0:delt:T;
+% xI trajectory 
+xI = r * sin((2*pi/T)*t);
+xI_dot = 2*r*pi/T * cos((2*pi/T)*t);
+xI_ddot = -4*r*pi^2/T^2 * sin((2*pi/T)*t);
+% yI trajectory
+yI = -r * cos((2*pi/T)*t);
+yI_dot = 2*r*pi/T * sin((2*pi/T)*t);
+yI_ddot = 4*r*pi^2/T^2 * cos((2*pi/T)*t);
+% zI trajectory
+zI = zeros(1, length(t));
+zI_dot = zeros(1, length(t));
+zI_ddot = zeros(1, length(t));
+% Desired attitude 
+xi = -sin((2*pi/T)*t);
+xj = cos((2*pi/T)*t);
+xk = zeros(1, length(t));
+
+
+% Padding to let altitude settle
+xSettle = zeros(N-length(t), 1);
+ySettle = -4*ones(N-length(t), 1);
+zSettle = zeros(N-length(t), 1);
+xjSettle = ones(N-length(t), 1);
+
+% Pack R
+R.tVec = [0:N]'*delt;
+R.rIstar = [xSettle, ySettle, zSettle; xI.', yI.', zI.'];
+R.vIstar = [zeros(N-length(t), 3); xI_dot.', yI_dot.', zI_dot.'];
+R.aIstar = [zeros(N-length(t), 3); xI_ddot.', yI_ddot.', zI_ddot.'];
+R.xIstar = [xSettle, xjSettle, zSettle; xi.', xj.', xk.'];
+
+
+% Matrix of disturbance forces acting on the body, in Newtons, expressed in I
+% S.distMat = 0.5*randn((N-1), 3); % With disturbances
+S.distMat = zeros(N, 3); % No disturbances
+
+
+% Initial position in m
+S.state0.r = [0 -r 0]';
+% Initial attitude expressed as Euler angles, in radians
+S.state0.e = [0 0 pi/2]';
+% Initial velocity of body with respect to I, expressed in I, in m/s
+S.state0.v = [0 0 0]';
+% Initial angular rate of body with respect to I, expressed in B, in rad/s
+S.state0.omegaB = [0 0 0]';
+% Oversampling factor
+S.oversampFact = 10;
+% Random Features
+% S.rXIMat = unifrnd(-10, 10, 10, 3);
+S.rXIMat = [0, 0, -0.5];
+
+% load("Data/Stest");
+[P, Est, Ms] = simulateQuadrotorEstimationControlAndStructureComputation(R, S, Pin);
+% Using the true state
+MsTrue.rxArray = Ms.rxArray(~cellfun(@isempty, Ms.rxArray));
+MsTrue.RCIArray = Ms.RCIArrayTrue(~cellfun(@isempty,  Ms.RCIArrayTrue));
+MsTrue.rcArray = Ms.rcArrayTrue(~cellfun(@isempty,  Ms.rcArrayTrue));
+% Using the estimated state
+% MsEst.rxArray = Ms.rxArray;
+% MsEst.RCIArray = Ms.RCIArrayEst;
+% MsEst.rcArray = Ms.rcArrayEst;
+
+% Estimate the location of the feature
+fprintf("The estimate of the object using the true state is: ");
+[rXIHat, Px] = estimate3dFeatureLocation(MsTrue, Pin)
+fprintf("The estimate of the object using the estimated state is: ");
+[rXIHat, Px] = estimate3dFeatureLocation(MsEst, Pin)
+
+%% Animation
+S2.tVec = P.tVec;
+S2.rMat = P.state.rMat;
+S2.eMat = P.state.eMat;
+S2.plotFrequency = 20;
+S2.makeGifFlag = false;
+S2.gifFileName = 'testGif.gif';
+S2.bounds=1*[-5 5 -5 5 -5 5];
+visualizeQuad(S2);
+
+%% Plotting
+plotQuad(R, P, Est)
